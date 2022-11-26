@@ -117,4 +117,4 @@ def delete_record():
 
 
 if __name__ == '__main__':
-    app.run('0.0.0.0',debug=True)
+    app.run(host='0.0.0.0:$PORT',debug=True)
