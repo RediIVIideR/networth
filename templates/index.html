@@ -350,7 +350,7 @@
             myModal.show();
         }
         function delete_record(link_element) {
-            theUrl = 'http://127.0.0.1:5000/delete_record?id='+link_element.id;
+            theUrl = 'http://networth-production.up.railway.app/delete_record?id='+link_element.id;
             fetch(theUrl).then(function(response) {
   return response.json();
 }).then(function(data) {
