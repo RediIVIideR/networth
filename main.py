@@ -76,7 +76,7 @@ def add_record():
         id_ = str(random.randint(1, 100000000000000000))
         timestamp = str(datetime.now().timestamp())
         if type_ == 'expense':
-            amount = int(amount)
+            amount = float(amount)
             amount = 0 - amount
             amount = str(amount)
 
