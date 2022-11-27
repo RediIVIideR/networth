@@ -10,10 +10,15 @@ app = Flask(__name__,
             template_folder='templates')
 
 
-def retrieve():
+def retrieve(month='', year='', day=''):
     conn = sqlite3.connect('records.db')
     cursor = conn.cursor()
-    data = cursor.execute('''SELECT * FROM (SELECT * FROM RECORDS ORDER BY TIMESTAMP DESC LIMIT 15)''')
+    if month != '' and year != '' and day!='':
+        data = cursor.execute(f"SELECT * FROM RECORDS WHERE MONTH='{month}' and YEAR={year} and DAY={day}")
+    elif month != '' and year != '':
+        data = cursor.execute(f"SELECT * FROM RECORDS WHERE MONTH='{month}' and YEAR={year}")
+    else:
+        data = cursor.execute('''SELECT * FROM (SELECT * FROM RECORDS ORDER BY TIMESTAMP DESC LIMIT 15)''')
     desc = cursor.description
     column_names = [col[0] for col in desc]
     final_data = []
@@ -21,7 +26,7 @@ def retrieve():
         process = []
         for i in range(len(row)):
             tuplee = (column_names[i], row[i])
-            print(tuplee)
+            # print(tuplee)
             process.append(tuplee)
         final_data.append(dict(process))
 
@@ -95,6 +100,21 @@ def add_record():
         return 404
 
 
+@app.route('/search', methods=["GET"])
+def search():
+    params = request.args.get('search')
+    month = params.split(' ')[0].lower().capitalize()
+    year = params.split(' ')[1]
+    try:
+        day = params.split(' ')[2]
+    except:
+        call = retrieve(month, year)
+        return render_template('search.html', records=call[0], balances=call[1])
+
+    call = retrieve(month, year, day)
+    return render_template('search.html', records=call[0], balances=call[1])
+
+
 @app.route('/delete_record', methods=['POST', 'GET'])
 def delete_record():
     if request.method == 'GET':
@@ -110,11 +130,14 @@ def delete_record():
         conn.commit()
         conn.close()
 
-        return render_template('index.html', records=retrieve())
+        call = retrieve()
+        return render_template('index.html', records=call[0], balances=call[1])
 
     else:
         return 404
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=5000))
+    app.run(debug=True,
+            port=os.getenv("PORT", default=5000)
+            )
